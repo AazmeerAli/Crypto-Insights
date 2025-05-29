@@ -10,14 +10,15 @@ const CurrencyDropdown = () => {
 
   useEffect(() => {
     const mapped = allCurrencies.map((cur) => ({
-      value: cur.abbreviation.toLowerCase(),
-      label: `${cur.abbreviation.toUpperCase()} (${decodeHtmlEntity(cur.symbol)})`,
+      value: cur.code.toLowerCase(),
+      label: `${cur.code.toUpperCase()} - ${decodeHtmlEntity(cur.symbol)}`,
     }));
     setOptions(mapped);
   }, [allCurrencies]);
 
   const handleChange = (selected) => {
     setCurrency(selected);
+    console.log(selected)
   };
 
   // const selectedOption = options.find(
