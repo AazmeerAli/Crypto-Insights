@@ -4,6 +4,7 @@ import { supportedCurrencies } from '../../context/currencies';
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { usePaginationNumbers } from './Pagination/usePaginationNumbers';
 import { usePaginationArrows } from './Pagination/usePaginationArrows';
+import Pagination from './Pagination/Pagination';
 
 function formatSmartNumber(input) {
   const num = Number(input);
@@ -50,7 +51,6 @@ async function getExchangeRate(targetCurrency) {
   return data.rates[targetCurrency];  // Example: 'PKR' or 'EUR' or 'JPY'
 }
 
-console.log(supportedCurrencies)
 
 async function convertCryptoDataToCurrency(cryptoDataUSD, targetCurrency) {
   const rate = await getExchangeRate(targetCurrency);
@@ -61,28 +61,10 @@ async function convertCryptoDataToCurrency(cryptoDataUSD, targetCurrency) {
   };
 }
 
-// function CryptoIcon({ symbol }) {
-//   const lowerSymbol = symbol.toLowerCase();
-//   return (
-//     <img
-//       src={`/crypto-icons/${lowerSymbol}.svg`}
-//       alt={symbol}
-//       width={24}
-//       height={24}
-//       onError={e => {
-//         e.target.onerror = null;
-//         e.target.src = '/crypto-icons/default.svg'; // fallback icon agar icon na mile
-//       }}
-//     />
-//   );
-// }
-
 
 
 const CoinsList = () => {
 
-  const paginationArrows = usePaginationArrows();
-  const paginationNumbers = usePaginationNumbers();
   const [convertedData, setConvertedData] = useState([]);
   const { totalPages, totalCoins, setTotalCoins, currentPage, setCurrentPage, allCoins, setAllCoins, allCurrencies, currency, setCurrency } = useContext(CoinContext);
   const currencySymbol = currency.label.split(' - ')[1] || '$';
@@ -98,7 +80,7 @@ const CoinsList = () => {
   return (
     <div className='w-full flex justify-center my-10'>
       <table
-        className="w-[60%] text-white border-collapse-separate bg-indigo-900 rounded-md py-2"
+        className="w-[70%] text-white border-collapse-separate bg-indigo-900 rounded-md py-2"
         style={{ borderSpacing: '0 10px' }} // vertical spacing 10px, horizontal 0
       >
         <thead className="border-b-2 border-gray-600">
@@ -158,110 +140,7 @@ const CoinsList = () => {
         <tfoot>
           <tr>
             <td colSpan="100%">
-              <div className="flex justify-center items-center gap-4 py-4">
-                <div className="flex items-center gap-2">
-                  {paginationArrows.map((arrow, index) => {
-                    if (index < 2) {
-                      return (
-                        <button
-                          key={index}
-                          className={arrow.className}
-                          style={arrow.style}
-                          onClick={arrow.onClick}
-                        >
-                          {arrow.icon}
-                        </button>
-                      );
-                    }
-                  })}
-                  {/* <button
-                    className={paginationButtonStyles}
-                    style={{
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <FaAngleDoubleLeft />
-                  </button>
-                  <button
-                    className={paginationButtonStyles}
-                    style={{
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      if (currentPage === 1) {
-                        setCurrentPage(totalPages);
-                      }
-                      else {
-                        setCurrentPage(currentPage - 1);
-                      }
-                    }}
-                  >
-                    <FaAngleLeft />
-                  </button> */}
-                </div>
-
-
-                <div className="flex items-center gap-2">
-                  {paginationNumbers.map((value, index) => (
-                    <button
-                      key={index}
-                      className={value.className}
-                      style={value.style}
-                      onClick={value.onClick}
-                    >
-                      {
-                        value.data
-                      }
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                   {paginationArrows.map((arrow, index) => {
-                    if (index >= paginationArrows.length - 2) {
-                      return (
-                        <button
-                          key={index}
-                          className={arrow.className}
-                          style={arrow.style}
-                          onClick={arrow.onClick}
-                        >
-                          {arrow.icon}
-                        </button>
-                      );
-                    }
-                  })}
-                  {/* <button
-                    className={paginationButtonStyles}
-                    style={{
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      if (currentPage === totalPages) {
-                        setCurrentPage(1);
-                      }
-                      else {
-                        setCurrentPage(currentPage + 1);
-                      }
-                    }}
-                  >
-                    <FaAngleRight />
-                  </button>
-                  <button
-                    className={paginationButtonStyles}
-                    style={{
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => {
-                      setCurrentPage(totalPages);
-                    }}
-                  >
-                    <FaAngleDoubleRight />
-                  </button> */}
-                </div>
-              </div>
+              <Pagination/>
             </td>
           </tr>
         </tfoot>

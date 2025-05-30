@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from './Navbar'
-import Intro from './Intro'
 import CoinsList from './CoinsList'
+import Intro from './Intro/Intro'
 
 const Main = () => {
   return (

@@ -7,9 +7,11 @@ export const CoinContext = createContext();
 const apiKey = import.meta.env.VITE_API_KEY;
 
 const CoinProvider = (props) => {
+    const [searchTerm, setSearchTerm] = useState('');
     const [totalCoins, setTotalCoins] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [totalCoinsData, setTotalCoinsData] = useState([])
     const [allCoins, setAllCoins] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
     const [allCurrencies, setAllCurrencies] = useState(supportedCurrencies);
     const [currency, setCurrency] = useState({
         value: "usd",
@@ -48,6 +50,8 @@ const CoinProvider = (props) => {
                     apiKey: apiKey,
                 }
             });
+            const data = res.data.data;
+            setTotalCoinsData(data);
             const totalCount = res.data.data.length;
             setTotalCoins(totalCount);
         } catch (err) {
@@ -58,11 +62,11 @@ const CoinProvider = (props) => {
     useEffect(() => {
         fetchTotal();
     }, []);
-    
+
     useEffect(() => {
         fetchData();
     }, [currentPage])
-    
+
 
     const contextValue = {
         totalCoins,
@@ -72,6 +76,8 @@ const CoinProvider = (props) => {
         totalPages,
         allCoins,
         setAllCoins,
+        totalCoinsData,
+        setTotalCoinsData,
         currency,
         setCurrency,
         allCurrencies,
@@ -80,6 +86,8 @@ const CoinProvider = (props) => {
         setLoading,
         error,
         setError,
+        searchTerm,
+        setSearchTerm,
     };
 
     return (
