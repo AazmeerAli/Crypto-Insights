@@ -3,6 +3,8 @@ import { usePaginationArrows } from './usePaginationArrows';
 import { usePaginationNumbers } from './usePaginationNumbers';
 import { CoinContext } from '../../../context/CoinContext';
 
+export const paginationButtonStyles = 'w-7 h-7 sm:w-8 sm:h-8 flex justify-center items-center border-1 border-gray-400 rounded-full cursor-pointer transition-colors duration-200 hover:bg-gray-500 hover:text-white ';
+
 const Pagination = () => {
 
     const { searchTerm, setSearchTerm } = useContext(CoinContext);

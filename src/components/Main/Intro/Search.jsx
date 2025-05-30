@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { CoinContext } from '../../../context/CoinContext';
+import { FaSearch } from 'react-icons/fa';
+import { IoSearch } from "react-icons/io5";
 
 const Search = () => {
 
@@ -23,8 +25,8 @@ const Search = () => {
         <div className='flex justify-center gap-2'>
             <input
                 type='text'
-                placeholder='Search Cryptocurrency'
-                className='border-1 hover:border-gray-400 border-gray-300 rounded outline-none transition-colors duration-200 px-2 py-1 placeholder:text-gray-400 placeholder:opacity-80'
+                placeholder='Search Crypto'
+                className='w-[200px] base:w-[250px] border-1 hover:border-gray-400 border-gray-300 rounded outline-none transition-colors duration-200 px-2 py-1 placeholder:text-gray-400 placeholder:opacity-80'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -32,7 +34,8 @@ const Search = () => {
                 className='bg-violet-800 px-4 rounded hover:cursor-pointer'
                 onClick={handleSearch}
             >
-                Search
+                <IoSearch className="block md:hidden" />
+                <span className="hidden md:inline">Search</span>
             </button>
         </div>
     )

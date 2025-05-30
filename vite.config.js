@@ -8,4 +8,8 @@ export default defineConfig({
     tailwindcss(),
     react()
   ],
+  server: {
+    host: true, // 👈 this allows access from local network
+    port: 3000, // optional: agar specific port chahiye
+  },
 })

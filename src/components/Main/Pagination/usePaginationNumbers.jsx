@@ -1,8 +1,6 @@
 import { useContext } from "react";
 import { CoinContext } from "../../../context/CoinContext";
-
-const paginationButtonStyles = 'w-9 h-9 flex justify-center items-center border border-gray-400 rounded-full cursor-pointer transition-colors duration-200 hover:bg-gray-500 hover:text-white';
-
+import { paginationButtonStyles } from "./Pagination";
 
 export const usePaginationNumbers = () => {
   const { totalPages, currentPage, setCurrentPage } = useContext(CoinContext);

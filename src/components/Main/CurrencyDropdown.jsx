@@ -46,7 +46,7 @@ const CurrencyDropdown = () => {
   };
 
   return (
-    <div className="w-[180px] text-black">
+    <div className="md:w-[180px] text-black">
       {/* <label htmlFor="Currency" className="text-white mb-1 block">
         Currency
       </label> */}
@@ -80,6 +80,7 @@ const CurrencyDropdown = () => {
           dropdownIndicator: (base, state) => ({
             ...base,
             color: state.isFocused ? "lightgray" : "white", // Icon color
+            fontSize: '0.9rem',
             "&:hover": {
               color: "white",
             },
@@ -87,6 +88,7 @@ const CurrencyDropdown = () => {
           clearIndicator: (base, state) => ({
             ...base,
             color: state.isFocused ? "lightgray" : "white",
+            fontSize: '0.9rem',
             "&:hover": {
               color: "white",
             },

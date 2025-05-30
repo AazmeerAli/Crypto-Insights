@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { CoinContext } from "../../../context/CoinContext";
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { paginationButtonStyles } from "./Pagination";
 
-const paginationButtonStyles = 'w-9 h-9 flex justify-center items-center border-1 border-gray-400 rounded-full cursor-pointer transition-colors duration-200 hover:bg-gray-500 hover:text-white ';
 
 export const usePaginationArrows = () => {
     const {
