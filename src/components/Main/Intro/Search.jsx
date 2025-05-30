@@ -3,13 +3,21 @@ import { CoinContext } from '../../../context/CoinContext';
 
 const Search = () => {
 
-    const { searchTerm,setSearchTerm,totalCoinsData, setTotalCoinsData, allCoins, setAllCoins, allCurrencies, currency, setCurrency } = useContext(CoinContext);
-    
+    const {
+        searchTerm,
+        setSearchTerm,
+        totalCoinsData,
+        setTotalCoinsData,
+        allCoins,
+        setAllCoins,
+        allCurrencies,
+        currency,
+        setCurrency,
+        handleSearch,
+    } = useContext(CoinContext);
 
-    const handleSearch = () => {
-        setAllCoins(totalCoinsData.filter(coin => coin.name.toLowerCase().includes(searchTerm.toLowerCase()) || coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())));
-        setSearchTerm('');
-    }
+
+
 
     return (
         <div className='flex justify-center gap-2'>

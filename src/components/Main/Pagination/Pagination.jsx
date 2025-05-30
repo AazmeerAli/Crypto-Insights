@@ -10,7 +10,7 @@ const Pagination = () => {
     const paginationNumbers = usePaginationNumbers();
 
     return (
-        <div className={searchTerm ? 'hidden' : `flex justify-center items-center gap-4 py-4`}>
+        <div className={ `flex justify-center items-center gap-4 py-4`}>
             <div className="flex items-center gap-2">
                 {paginationArrows.map((arrow, index) => {
                     if (index < 2) {

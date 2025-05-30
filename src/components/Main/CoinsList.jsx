@@ -66,16 +66,16 @@ async function convertCryptoDataToCurrency(cryptoDataUSD, targetCurrency) {
 const CoinsList = () => {
 
   const [convertedData, setConvertedData] = useState([]);
-  const { totalPages, totalCoins, setTotalCoins, currentPage, setCurrentPage, allCoins, setAllCoins, allCurrencies, currency, setCurrency } = useContext(CoinContext);
+  const { paginatedCoins, totalPages, totalCoins, setTotalCoins, currentPage, setCurrentPage, allCoins, setAllCoins, allCurrencies, currency, setCurrency } = useContext(CoinContext);
   const currencySymbol = currency.label.split(' - ')[1] || '$';
   const paginationButtonStyles = 'w-9 h-9 flex justify-center items-center border-1 border-gray-400 rounded-full cusror-pointer transition-colors duration-200 hover:bg-gray-500 hover:text-white ';
   // const totalPages = Math.ceil(totalCoins / 10);
 
   useEffect(() => {
-    Promise.all(allCoins.map(value =>
+    Promise.all(paginatedCoins.map(value =>
       convertCryptoDataToCurrency(value, currency.value.toUpperCase())
     )).then(results => setConvertedData(results));
-  }, [allCoins, currency]);
+  }, [paginatedCoins, currency]);
 
   return (
     <div className='w-full flex justify-center my-10'>
@@ -93,7 +93,7 @@ const CoinsList = () => {
           </tr>
         </thead>
         <tbody>
-          {allCoins.map((value, index) => {
+          {paginatedCoins.map((value, index) => {
             const convertedValues = convertedData[index];
 
             // const matchedObj = CryptoJSON.find(obj => obj.name === value.name);
@@ -140,7 +140,7 @@ const CoinsList = () => {
         <tfoot>
           <tr>
             <td colSpan="100%">
-              <Pagination/>
+              <Pagination />
             </td>
           </tr>
         </tfoot>

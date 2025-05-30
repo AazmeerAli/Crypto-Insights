@@ -8,9 +8,9 @@ const apiKey = import.meta.env.VITE_API_KEY;
 
 const CoinProvider = (props) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [totalCoins, setTotalCoins] = useState(0);
-    const [totalCoinsData, setTotalCoinsData] = useState([])
+    // const [totalCoins, setTotalCoins] = useState(0);
     const [allCoins, setAllCoins] = useState([]);
+    const [coins, setCoins] = useState(allCoins);
     const [currentPage, setCurrentPage] = useState(1);
     const [allCurrencies, setAllCurrencies] = useState(supportedCurrencies);
     const [currency, setCurrency] = useState({
@@ -19,8 +19,10 @@ const CoinProvider = (props) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const limit = 10
+    const limit = 10;
     const offset = (currentPage - 1) * limit;
+    const paginatedCoins = coins.slice(offset, offset + limit);
+    const totalCoins= coins.length; 
     const totalPages = Math.ceil(totalCoins / 10);
 
     const fetchData = async () => {
@@ -28,11 +30,11 @@ const CoinProvider = (props) => {
             const res = await axios.get(`https://rest.coincap.io/v3/assets`, {
                 params: {
                     limit: limit,
-                    offset: offset,
+                    // offset: offset,
                     apiKey: apiKey,
                 }
             });
-            setAllCoins(res.data.data);
+            setCoins(res.data.data);
             // const totalCount = res.data.data.length > 0 ? 
             //             parseInt(res.headers['x-total-count']) : 0;
             //                 console.log("Total available coins:", totalCount);
@@ -51,33 +53,45 @@ const CoinProvider = (props) => {
                 }
             });
             const data = res.data.data;
-            setTotalCoinsData(data);
-            const totalCount = res.data.data.length;
-            setTotalCoins(totalCount);
+            setAllCoins(data);
+            setCoins(prev =>
+                [...prev, ...data.filter(coin => !prev.some(c => c.id === coin.id))]
+            );
+            // const totalCount = res.data.data.length;
+            // setTotalCoins(totalCount);
         } catch (err) {
             console.error('Error:', err);
         }
     }
 
     useEffect(() => {
+        fetchData();
         fetchTotal();
     }, []);
 
-    useEffect(() => {
-        fetchData();
-    }, [currentPage])
+    // useEffect(() => {
+    //     fetchData();
+    // }, [currentPage])
 
+     const handleSearch = () => {
+        setCoins(allCoins.filter(coin => coin.name.toLowerCase().includes(searchTerm.toLowerCase()) || coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())));
+        // setSearchTerm('');
+        setCurrentPage(1);
+    }
+
+    console.log("all Coins:", allCoins);
+    console.log("Coins:", coins);
+
+    console.log(searchTerm)
 
     const contextValue = {
-        totalCoins,
-        setTotalCoins,
         currentPage,
         setCurrentPage,
         totalPages,
+        coins,
+        setCoins,
         allCoins,
         setAllCoins,
-        totalCoinsData,
-        setTotalCoinsData,
         currency,
         setCurrency,
         allCurrencies,
@@ -88,6 +102,8 @@ const CoinProvider = (props) => {
         setError,
         searchTerm,
         setSearchTerm,
+        handleSearch,
+        paginatedCoins,
     };
 
     return (
