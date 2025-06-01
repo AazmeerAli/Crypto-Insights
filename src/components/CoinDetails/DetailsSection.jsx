@@ -35,10 +35,10 @@ const DetailsSection = () => {
     const fetchCoins = async () => {
         setLoading(true)
         try {
-            // const res = await axios.get(`https://api.coinpaprika.com/v1/tickers/${coin}`);
-            const response = await axios.get(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7`);
-            console.log(response.data)
-            // setCoinDetail(res.data);
+            const res = await axios.get(`https://api.coinpaprika.com/v1/tickers/${coin}`);
+            // const response = await axios.get(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7`);
+            // console.log(response.data)
+            setCoinDetail(res.data);
         } catch (error) {
             console.error('Error fetching coins:', error);
         } finally {
@@ -60,7 +60,7 @@ const DetailsSection = () => {
     }, [currency, coinDetail]);
 
 
-// console.log(convertedData)
+    // console.log(convertedData)
     const coinData = [
         {
             name: 'Crypto Market Rank',
@@ -74,11 +74,11 @@ const DetailsSection = () => {
         },
         {
             name: 'Market Cap',
-            data: `${currencySymbol} ${convertedData?.market_cap.toLocaleString()}` || 'N/A',
+            data: convertedData?.market_cap ? `${currencySymbol} ${convertedData?.market_cap.toLocaleString()}` : 'N/A',
         },
         {
             name: '24 Hour Change',
-            data: `${coinDetail?.quotes.USD.percent_change_24h}%` || 'N/A',
+            data: coinDetail?.quotes.USD.percent_change_24h ? `${coinDetail?.quotes.USD.percent_change_24h}%` : 'N/A',
         },
         {
             name: '24 Hour Volume',
@@ -101,10 +101,10 @@ const DetailsSection = () => {
     )
     return (
         <div
-            className='flex flex-col items-center justify-center h-full w-full'
+            className='flex flex-col items-center justify-center h-full w-full py-20'
             // 16px ki footer me padding ha
             style={{ minHeight: `calc(100vh - ${footerHeight + headerHeight + 16}px)` }}
-        >
+            >
             <div className='w-24'>
                 <img
                     src={`https://assets.coincap.io/assets/icons/${coinDetail?.symbol.toLowerCase()}@2x.png`}
@@ -114,7 +114,9 @@ const DetailsSection = () => {
                     className="text-[0px] w-full"
                 />
             </div>
-            <DetailChart coinId={coinDetail?.name.toLowerCase()}/>
+                <DetailChart 
+                coin={coinDetail}
+                />
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
                 {coinDetail?.name} ({coinDetail?.symbol})
             </h1>
@@ -123,7 +125,7 @@ const DetailsSection = () => {
                     <div
                         key={index}
                         className='flex justify-between text-white'
-                    >
+                        >
                         <span>{value.name}</span>
                         <span>{value.data}</span>
                     </div>

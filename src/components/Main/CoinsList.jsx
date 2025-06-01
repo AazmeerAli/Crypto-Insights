@@ -114,7 +114,7 @@ const CoinsList = () => {
                     key={value.rank}
                     className="text-gray-400 text-nowrap border-b-1 border-gray-500 bg-indigo-900 rounded-md"
                     style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}
-                    onClick={()=>navigate(`/${value.id.toLowerCase()}`)}
+                    onClick={()=>navigate(`/coin/${value.id.toLowerCase()}`)}
                   >
                     <td className={`${cellPadding}`}>{value.rank}</td>
                     <td className={`${cellPadding} flex gap-2 items-center`}>

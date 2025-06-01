@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { supportedCurrencies } from "./currencies";
+import apiSupportedCurrencies from "./apiSupportedCurrencies";
 
 export const CoinContext = createContext();
 
@@ -12,7 +13,9 @@ const CoinProvider = (props) => {
     const [allCoins, setAllCoins] = useState([]);
     const [coins, setCoins] = useState(allCoins);
     const [currentPage, setCurrentPage] = useState(1);
-    const [allCurrencies, setAllCurrencies] = useState(supportedCurrencies);
+    const apiCurrencies=supportedCurrencies.filter(currency => apiSupportedCurrencies.includes(currency.code.toLowerCase()));
+    // console.log(apiCurrencies)
+    const [allCurrencies, setAllCurrencies] = useState(apiCurrencies);
     const [currency, setCurrency] = useState({
         value: "usd",
         label: "USD - $",
