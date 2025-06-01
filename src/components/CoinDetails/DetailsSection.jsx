@@ -3,19 +3,42 @@ import { useParams } from 'react-router-dom'
 import { CoinContext } from '../../context/CoinContext';
 import axios from 'axios';
 import LoadingComponent from '../LoadingComponent';
+import DetailChart from './DetailChart';
+
+async function getExchangeRate(targetCurrency) {
+    const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await response.json();
+    // console.log(Object.keys(data.rates).length)
+    return data.rates[targetCurrency];  // Example: 'PKR' or 'EUR' or 'JPY'
+}
+
+
+async function convertCryptoDataToCurrency(cryptoDataUSD, targetCurrency) {
+    const rate = await getExchangeRate(targetCurrency);
+
+    return {
+        price: cryptoDataUSD.quotes.USD.price * rate,
+        market_cap: cryptoDataUSD.quotes.USD.market_cap * rate,
+        volume_24h: cryptoDataUSD.quotes.USD.volume_24h * rate,
+    };
+}
 
 const DetailsSection = () => {
 
-    const { coins, setCoins, allCoins, setAllCoins, loading, setLoading, headerHeight, footerHeight } = useContext(CoinContext);
+    const [convertedData, setConvertedData] = useState(null);
+    const { coins, setCoins, allCoins, setAllCoins, currency, loading, setLoading, headerHeight, footerHeight } = useContext(CoinContext);
     const { coin } = useParams()
     const [coinDetail, setCoinDetail] = useState(null);
-    console.log(coinDetail)
+    const currencySymbol = currency.label.split(' - ')[1] || '$';
+    // console.log(coinDetail)
 
     const fetchCoins = async () => {
         setLoading(true)
         try {
-            const res = await axios.get(`https://api.coinpaprika.com/v1/tickers/${coin}`);
-            setCoinDetail(res.data);
+            // const res = await axios.get(`https://api.coinpaprika.com/v1/tickers/${coin}`);
+            const response = await axios.get(`https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7`);
+            console.log(response.data)
+            // setCoinDetail(res.data);
         } catch (error) {
             console.error('Error fetching coins:', error);
         } finally {
@@ -27,6 +50,17 @@ const DetailsSection = () => {
         fetchCoins();
     }, []);
 
+
+    useEffect(() => {
+        if (coinDetail) {
+            convertCryptoDataToCurrency(coinDetail, currency.value.toUpperCase())
+                .then((value) => setConvertedData(value))
+                .catch((error) => console.error('Error converting crypto data:', error));
+        }
+    }, [currency, coinDetail]);
+
+
+// console.log(convertedData)
     const coinData = [
         {
             name: 'Crypto Market Rank',
@@ -34,14 +68,13 @@ const DetailsSection = () => {
         },
         {
             name: 'Current Price',
-            data: coinDetail?.quotes.USD.price
-                ? Number(coinDetail.quotes.USD.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            data: convertedData?.price
+                ? `${currencySymbol} ${Number(convertedData?.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 : 'N/A',
-
         },
         {
             name: 'Market Cap',
-            data: coinDetail?.quotes.USD.market_cap.toLocaleString() || 'N/A',
+            data: `${currencySymbol} ${convertedData?.market_cap.toLocaleString()}` || 'N/A',
         },
         {
             name: '24 Hour Change',
@@ -49,8 +82,8 @@ const DetailsSection = () => {
         },
         {
             name: '24 Hour Volume',
-            data: coinDetail?.quotes.USD.volume_24h
-                ? Number(coinDetail.quotes.USD.volume_24h).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            data: convertedData?.volume_24h
+                ? `${currencySymbol} ${Number(convertedData?.volume_24h).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                 : 'N/A',
 
         },
@@ -81,6 +114,7 @@ const DetailsSection = () => {
                     className="text-[0px] w-full"
                 />
             </div>
+            <DetailChart coinId={coinDetail?.name.toLowerCase()}/>
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
                 {coinDetail?.name} ({coinDetail?.symbol})
             </h1>
