@@ -104,7 +104,7 @@ const DetailsSection = () => {
             className='flex flex-col items-center justify-center h-full w-full py-20'
             // 16px ki footer me padding ha
             style={{ minHeight: `calc(100vh - ${footerHeight + headerHeight + 16}px)` }}
-            >
+        >
             <div className='w-24'>
                 <img
                     src={`https://assets.coincap.io/assets/icons/${coinDetail?.symbol.toLowerCase()}@2x.png`}
@@ -114,9 +114,13 @@ const DetailsSection = () => {
                     className="text-[0px] w-full"
                 />
             </div>
-                <DetailChart 
+            <div
+            className=' w-auto h-auto'
+            >
+            <DetailChart
                 coin={coinDetail}
                 />
+                </div>
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
                 {coinDetail?.name} ({coinDetail?.symbol})
             </h1>
@@ -125,7 +129,7 @@ const DetailsSection = () => {
                     <div
                         key={index}
                         className='flex justify-between text-white'
-                        >
+                    >
                         <span>{value.name}</span>
                         <span>{value.data}</span>
                     </div>

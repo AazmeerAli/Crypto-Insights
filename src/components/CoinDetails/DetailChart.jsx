@@ -1,30 +1,8 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Line } from "react-chartjs-2";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import axios from "axios";
-import CryptoListJSON from './CryptoList.json';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  TimeScale,
-} from "chart.js";
-import "chartjs-adapter-date-fns";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  TimeScale
-);
+import ReactECharts from "echarts-for-react";
+import CryptoListJSON from "./CryptoList.json";
+import { CoinContext } from "../../context/CoinContext";
 
 const optionsList = [
   { label: "1d", value: "1" },
@@ -37,148 +15,126 @@ const optionsList = [
 
 export default function DetailChart({ coin }) {
   const [days, setDays] = useState("30");
-  const [chartData, setChartData] = useState(null);
+  const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
   const fetchIdRef = useRef(0);
 
-  const fetchBestMatch = () => {
-    if (!coin?.id || !coin?.name || !coin?.symbol) return;
+  const {currency}=useContext(CoinContext)
+
+  useEffect(() => {
+    if (!coin?.id) return;
     const myCoin = coin;
-    let bestMatch = null;
-    let maxMatches = 0;
+    let best = null;
+    let matchCount = 0;
 
     for (const c of CryptoListJSON) {
-      let matchCount = 0;
-      if (c.id.toLowerCase() === myCoin.id.toLowerCase()) matchCount++;
-      if (c.name.toLowerCase() === myCoin.name.toLowerCase()) matchCount++;
-      if (c.symbol.toLowerCase() === myCoin.symbol.toLowerCase()) matchCount++;
-      if (matchCount > maxMatches) {
-        bestMatch = c;
-        maxMatches = matchCount;
-        if (matchCount === 3) break;
+      let count = 0;
+      if (c.id.toLowerCase() === myCoin.id.toLowerCase()) count++;
+      if (c.name.toLowerCase() === myCoin.name.toLowerCase()) count++;
+      if (c.symbol.toLowerCase() === myCoin.symbol.toLowerCase()) count++;
+      if (count > matchCount) {
+        matchCount = count;
+        best = c;
+        if (count === 3) break;
       }
     }
-    setCurrentMatch(bestMatch);
-  };
-
-  useEffect(() => {
-    fetchBestMatch();
+    setCurrentMatch(best);
   }, [coin]);
 
-  const fetchData = async () => {
-    if (!currentMatch?.id) return;
-    setLoading(true);
-    const fetchId = ++fetchIdRef.current;
-
-    try {
-      const url = `https://api.coingecko.com/api/v3/coins/${currentMatch.id}/market_chart?vs_currency=usd&days=${days}`;
-      const response = await axios.get(url);
-      if (fetchId !== fetchIdRef.current) return;
-
-      const { prices, market_caps, total_volumes } = response.data;
-
-      const formatData = (array) =>
-        array
-          .filter(([timestamp, value]) => typeof value === "number" && !isNaN(value))
-          .map(([timestamp, value]) => ({ x: timestamp, y: value }));
-
-      setChartData({
-        datasets: [
-          {
-            label: "Prices (USD)",
-            data: formatData(prices),
-            borderColor: "rgb(75, 192, 192)",
-            backgroundColor: "rgba(75, 192, 192, 0.5)",
-            tension: 0.1,
-            parsing: false,
-          },
-          {
-            label: "Market Caps (USD)",
-            data: formatData(market_caps),
-            borderColor: "rgb(255, 99, 132)",
-            backgroundColor: "rgba(255, 99, 132, 0.5)",
-            tension: 0.1,
-            parsing: false,
-          },
-          {
-            label: "Total Volumes (USD)",
-            data: formatData(total_volumes),
-            borderColor: "rgb(53, 162, 235)",
-            backgroundColor: "rgba(53, 162, 235, 0.5)",
-            tension: 0.1,
-            parsing: false,
-          },
-        ],
-      });
-    } catch (error) {
-      console.error("Error fetching chart data:", error);
-    }
-
-    setLoading(false);
-  };
-
   useEffect(() => {
     if (!currentMatch?.id) return;
+    const fetchId = ++fetchIdRef.current;
+    setLoading(true);
 
-    const timeout = setTimeout(() => {
-      fetchData();
-    }, 500); // wait 700ms before fetching (you can increase if needed)
+    axios
+      .get(
+        `https://api.coingecko.com/api/v3/coins/${currentMatch.id}/market_chart?vs_currency=${currency?.value}&days=${days}`
+      )
+      .then((res) => {
+        if (fetchId !== fetchIdRef.current) return;
+        const { prices, market_caps, total_volumes } = res.data;
 
-    return () => clearTimeout(timeout); // clear on re-render
-  }, [days, currentMatch]);
+        const formatted = prices.map(([timestamp], i) => ({
+          time: new Date(timestamp).toLocaleDateString(),
+          price: prices[i]?.[1].toFixed(2) ?? null,
+          marketCap: market_caps[i]?.[1].toFixed(2) ?? null,
+          volume: total_volumes[i]?.[1].toFixed(2) ?? null,
+        }));
 
+        setChartData(formatted);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [days,currency, currentMatch]);
 
-
-
-
-  const chartOptions = useMemo(() => {
-    if (!chartData) return {};
-    const allYValues = chartData.datasets.flatMap((ds) => ds.data.map((d) => d.y));
-    const globalMin = Math.min(...allYValues);
-    const globalMax = Math.max(...allYValues);
-
-    return {
-      responsive: true,
-      plugins: {
-        legend: { position: "top" },
-        title: {
-          display: true,
-          text: `Market Data - Last ${days} days`,
-        },
+ const getOption = () => ({
+  tooltip: {
+    trigger: "axis",
+  },
+  legend: {
+    data: ["Prices", "Market Caps", "Total Volumes"],
+    bottom: 0, // 👈 move legend to bottom
+  },
+  grid: {
+    left: "12%", // 👈 fix label cutoff
+    right: "5%",
+    bottom: "20%", // enough space for legend
+  },
+  xAxis: {
+    type: "category",
+    data: chartData.map((d) => d.time),
+  },
+ yAxis: [
+  {
+    type: "value", // 👈 log hatao, linear use karo for better label spacing
+    name: currency?.label,
+    splitNumber: 6, // 👈 Yeh 5-8 label generate karega
+    axisLabel: {
+      formatter: (value) => {
+        const abs = Math.abs(value);
+        if (abs >= 1e21) return value / 1e12 + "S";
+        if (abs >= 1e15) return value / 1e12 + "Q";
+        if (abs >= 1e12) return value / 1e12 + "T";
+        if (abs >= 1e9) return value / 1e9 + "B";
+        if (abs >= 1e6) return value / 1e6 + "M";
+        if (abs >= 1e3) return value / 1e3 + "K";
+        return value;
       },
-      scales: {
-        x: {
-          type: "time",
-          time: {
-            unit: days <= 7 ? "hour" : "day",
-          },
-        },
-        y: {
-          min: globalMin * 0.95,
-          max: globalMax * 1.05,
-          ticks: {
-            maxTicksLimit: 8, // y-axis par zyada labels dikhane ke liye
-            callback: function (value) {
-              const abs = Math.abs(value);
-              if (abs >= 1e15) return (value / 1e15).toFixed(1) + "Q";
-              if (abs >= 1e12) return (value / 1e12).toFixed(1) + "T";
-              if (abs >= 1e9) return (value / 1e9).toFixed(1) + "B";
-              if (abs >= 1e6) return (value / 1e6).toFixed(1) + "M";
-              if (abs >= 1e3) return (value / 1e3).toFixed(1) + "K";
-              return value;
-            },
-          },
-        },
-      },
-    };
-  }, [chartData, days]);
+    },
+  },
+],
+
+  series: [
+    {
+      name: "Prices",
+      type: "line",
+      data: chartData.map((d) => d.price),
+      smooth: true,
+    },
+    {
+      name: "Market Caps",
+      type: "line",
+      data: chartData.map((d) => d.marketCap),
+      smooth: true,
+    },
+    {
+      name: "Total Volumes",
+      type: "line",
+      data: chartData.map((d) => d.volume),
+      smooth: true,
+    },
+  ],
+});
 
 
   return (
-    <div className="mx-auto" style={{ maxWidth: 900 }}>
-      {loading && <p>Loading...</p>}
-      {chartData && <Line className="h-auto" options={chartOptions} data={chartData} height={'auto'}/>}
+    <div className="mx-auto" style={{ maxWidth: 1000 }}>
+      {/* {loading && <p>Loading...</p>} */}
+      {chartData.length > 0 && (
+        <ReactECharts option={getOption()} style={{ height: 300, width: "100%" }} />
+      )}
+
       <div className="mt-4 mb-10">
         {optionsList.map((option) => (
           <button
