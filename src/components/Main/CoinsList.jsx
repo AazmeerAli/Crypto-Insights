@@ -112,7 +112,7 @@ const CoinsList = () => {
                 return (
                   <tr
                     key={value.rank}
-                    className="text-gray-400 text-nowrap border-b-1 border-gray-500 bg-indigo-900 rounded-md"
+                    className="text-gray-400 text-nowrap border-b-1 border-gray-500 bg-indigo-900 rounded-md cursor-pointer"
                     style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }}
                     onClick={()=>navigate(`/coin/${value.id.toLowerCase()}`)}
                   >

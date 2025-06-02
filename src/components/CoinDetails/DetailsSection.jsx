@@ -101,7 +101,7 @@ const DetailsSection = () => {
     )
     return (
         <div
-            className='flex flex-col items-center justify-center h-full w-full py-20'
+            className='w-[70%] flex flex-col items-center justify-center h-full py-20 mx-auto'
             // 16px ki footer me padding ha
             style={{ minHeight: `calc(100vh - ${footerHeight + headerHeight + 16}px)` }}
         >
@@ -114,24 +114,25 @@ const DetailsSection = () => {
                     className="text-[0px] w-full"
                 />
             </div>
-            <div
-            className=' w-auto h-auto'
-            >
-            <DetailChart
-                coin={coinDetail}
-                />
-                </div>
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
                 {coinDetail?.name} ({coinDetail?.symbol})
             </h1>
-            <div className='min-w-xl'>
+            <div
+                className='w-full h-auto'
+            >
+                <DetailChart
+                    coin={coinDetail}
+                />
+            </div>
+            <div className='w-full border-1 border-gray-600 my-5'></div>
+            <div className='min-w-xl w-full'>
                 {coinData.map((value, index) => (
                     <div
                         key={index}
                         className='flex justify-between text-white'
                     >
-                        <span>{value.name}</span>
-                        <span>{value.data}</span>
+                        <span className='text-white'>{value.name}</span>
+                        <span className='text-violet-300'>{value.data}</span>
                     </div>
                 ))}
             </div>

@@ -19,7 +19,7 @@ export const usePaginationNumbers = () => {
 
   for (let i = start; i <= end; i++) {
     visiblePages.push({
-      className: currentPage === i ? `${paginationButtonStyles} bg-white text-black` : paginationButtonStyles,
+      className: currentPage === i ? `${paginationButtonStyles} bg-violet-300 text-white` : paginationButtonStyles,
       style: { cursor: 'pointer' },
       onClick: () => setCurrentPage(i),
       data: i,

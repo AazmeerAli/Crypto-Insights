@@ -52,6 +52,7 @@ const CurrencyDropdown = () => {
       </label> */}
       <Select
         id="Currency"
+        className="focus:outline-none"
         value={selectedOption}
         onChange={handleChange}
         options={options}
@@ -66,8 +67,19 @@ const CurrencyDropdown = () => {
             ...base,
             // backgroundColor: "#1a1a1a",
             backgroundColor: "transparent",
-            border: "1px solid #4b5563",
+            border: "1px solid #9ca3af",
             color: "white",
+            cursor:'pointer',
+            "&:hover": {
+              borderColor: "#a78bfa",
+            },
+            "&:focus": {
+              borderColor: "#a78bfa",
+            },
+            '&:focus-visible':{
+              outline:'none !important',
+              // border:'none !important',
+            }
           }),
           singleValue: (base) => ({
             ...base,
