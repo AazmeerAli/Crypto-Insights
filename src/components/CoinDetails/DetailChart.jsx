@@ -34,17 +34,82 @@ const optionsList = [
   { label: "1m", value: "30" },
   { label: "3m", value: "90" },
   { label: "6m", value: "180" },
-  { label: "1y", value: "364" },
+  { label: "1y", value: "365" },
 ];
+
+
+function formatNumberWithFixedDecimals(num, decimals = 2) {
+  // Handle NaN, Infinity cases
+  if (!isFinite(num)) return num.toString();
+
+  // Round to specified decimals
+  const factor = Math.pow(10, decimals);
+  const rounded = Math.round(num * factor) / factor;
+
+  // Convert to string and ensure exactly 2 decimal places
+  let str = rounded.toString();
+
+  // If in scientific notation, convert to decimal
+  if (str.includes('e')) {
+    str = rounded.toFixed(20).replace(/(\.\d*?)0+$/, '$1');
+    if (str.endsWith('.')) str = str.slice(0, -1);
+  }
+
+  // Split into integer and decimal parts
+  const parts = str.split('.');
+
+  // Add decimal part if missing
+  if (parts.length === 1) {
+    return parts[0] + '.' + '0'.repeat(decimals);
+  }
+
+  // Pad decimal part with zeros if needed
+  if (parts[1].length < decimals) {
+    return parts[0] + '.' + parts[1] + '0'.repeat(decimals - parts[1].length);
+  }
+
+  // Trim excess decimal digits
+  if (parts[1].length > decimals) {
+    return parts[0] + '.' + parts[1].substring(0, decimals);
+  }
+
+  return str;
+}
+
+function formatDecimalSignificant(num, sigFigs = 2) {
+  const absNum = Math.abs(num);
+
+  if (absNum >= 1) {
+    // For numbers ≥ 1, show 2 decimal places
+    return formatNumberWithFixedDecimals(num, 2);
+  } else {
+    // For numbers < 1, show 2 significant digits
+    if (num === 0) return "0.00";
+
+    const log10 = Math.floor(Math.log10(absNum));
+    const factor = Math.pow(10, 2 - log10 - 1);
+    const rounded = Math.round(num * factor) / factor;
+
+    // Convert to string and ensure proper formatting
+    let str = rounded.toString();
+
+    // Add leading zero if needed (e.g., ".0023" → "0.0023")
+    if (str.startsWith('.')) str = '0' + str;
+
+    // Ensure we show enough decimal places for the significant digits
+    const decimalPlaces = Math.max(0, 2 - Math.floor(Math.log10(Math.abs(rounded))) - 1);
+    return Number(str).toFixed(decimalPlaces);
+  }
+}
 
 export default function DetailChart({ coin }) {
   const [days, setDays] = useState("30");
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentMatch, setCurrentMatch] = useState(null);
-  const [selectedChart, setSelectedChart] = useState("Prices"); // Naya state
+  const [selectedChart, setSelectedChart] = useState("Prices");
   const fetchIdRef = useRef(0);
-  const commonBtnClasses = "px-3 py-1 rounded border transition cursor-pointer text-sm font-medium";
+  const commonBtnClasses = "px-1 base:px-1.5 xs:px-3 md:px-1.5 lg:px-3 py-1 rounded border transition cursor-pointer text-sm font-medium";
 
   const { error, setError, currency } = useContext(CoinContext)
 
@@ -83,9 +148,10 @@ export default function DetailChart({ coin }) {
 
         const formatted = prices.map(([timestamp], i) => ({
           time: new Date(timestamp).toLocaleDateString(),
-          price: prices[i]?.[1].toFixed(2) ?? null,
-          marketCap: market_caps[i]?.[1].toFixed(2) ?? null,
-          volume: total_volumes[i]?.[1].toFixed(2) ?? null,
+          timestamp, // <-- add this for time-based formatting
+          price: prices[i]?.[1] ?? null,
+          marketCap: market_caps[i]?.[1] ?? null,
+          volume: total_volumes[i]?.[1] ?? null,
         }));
 
         setChartData(formatted);
@@ -125,12 +191,18 @@ export default function DetailChart({ coin }) {
       .finally(() => setLoading(false));
   }, [days, currency, currentMatch]);
 
-  // Chart.js ke liye data tayar karna
+  const isOneDay = days === "1";
   const chartJsData = {
-    labels: chartData.map((d) => d.time),
+    labels: chartData.map((d) =>
+      isOneDay
+        ? new Date(chartData[0]?.time).toLocaleDateString() === d.time
+          ? d.timestamp
+          : d.time
+        : d.time
+    ),
     datasets: [
       selectedChart === "Prices" && {
-        label: "Prices (" + currency?.label + ")",
+        label: "Prices",
         data: chartData.map((d) => Number(d.price)),
         // borderColor: "rgb(75, 192, 192)",
         borderColor: '#c4b5fd',
@@ -139,7 +211,7 @@ export default function DetailChart({ coin }) {
         pointRadius: 0,
       },
       selectedChart === "Market Caps" && {
-        label: "Market Caps (" + currency?.label + ")",
+        label: "Market Caps",
         data: chartData.map((d) => Number(d.marketCap)),
         // borderColor: "rgb(255, 99, 132)",
         borderColor: '#c4b5fd',
@@ -148,7 +220,7 @@ export default function DetailChart({ coin }) {
         pointRadius: 0,
       },
       selectedChart === "Total Volumes" && {
-        label: "Total Volumes (" + currency?.label + ")",
+        label: "Total Volumes",
         data: chartData.map((d) => Number(d.volume)),
         // borderColor: "rgb(53, 162, 235)",
         borderColor: '#c4b5fd',
@@ -159,20 +231,49 @@ export default function DetailChart({ coin }) {
     ].filter(Boolean),
   };
 
-  // Chart.js options
   const chartJsOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         display: false,
       },
       title: {
         display: true,
-        text: selectedChart + " Chart - Last " + days + " days",
+        text: selectedChart + " Data - Last " + days + " days",
       },
       tooltip: {
         mode: "index",
         intersect: false,
+        callbacks: {
+          title: function (tooltipItems) {
+            if (isOneDay && tooltipItems.length > 0) {
+              const idx = tooltipItems[0].dataIndex;
+              const d = chartData[idx];
+              if (d && d.timestamp) {
+                const date = new Date(d.timestamp);
+                return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+              }
+            }
+            return tooltipItems[0].label;
+          },
+          label: function (tooltipItem) {
+            // Custom label: show label, value with 2 decimals, and currency
+            const dataset = tooltipItem.dataset;
+            const value = tooltipItem.parsed.y;
+            let formatted = '';
+            if (dataset && dataset.label) {
+              formatted += dataset.label + ': ';
+            }
+            formatted += value >=1? Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : formatDecimalSignificant(value);
+            if (currency?.label) {
+              // Show only currency code (e.g. USD)
+              const code = currency.label.split(' ').pop();
+              formatted += ' ' + code;
+            }
+            return formatted;
+          },
+        },
       },
     },
     scales: {
@@ -180,16 +281,23 @@ export default function DetailChart({ coin }) {
         type: "category",
         title: { display: false },
         grid: {
-          // color: "#4b5563", 
           display: false,
           drawTicks: true,
         },
         ticks: {
           autoSkip: true,
           maxTicksLimit: 20,
-          // callback: function (value) {
-          //   return new Date(value).toLocaleString();
-          // },
+          callback: function (value, idx, values) {
+            if (isOneDay) {
+              // Show only time for 1d
+              const d = chartData[idx];
+              if (d && d.timestamp) {
+                return new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              }
+            }
+            // Default: show date
+            return this.getLabelForValue(value);
+          },
         },
       },
       y: {
@@ -202,18 +310,38 @@ export default function DetailChart({ coin }) {
         ticks: {
           callback: function (value) {
             const abs = Math.abs(value);
-            if (abs >= 1e21) return value / 1e12 + "S";
-            if (abs >= 1e15) return value / 1e12 + "Q";
-            if (abs >= 1e12) return value / 1e12 + "T";
-            if (abs >= 1e9) return value / 1e9 + "B";
-            if (abs >= 1e6) return value / 1e6 + "M";
-            if (abs >= 1e3) return value / 1e3 + "K";
-            return value;
-          },
-        },
+
+            // First format the number to 2 significant digits
+            const formatValue = (val) => {
+              if (val === 0) return '0';
+              const absVal = Math.abs(val);
+              const log10 = Math.floor(Math.log10(absVal));
+              const factor = Math.pow(10, 2 - log10 - 1);
+              const rounded = Math.round(val * factor) / factor;
+
+              // Convert to string and remove trailing .0 if no decimal places
+              let str = rounded.toString();
+              if (str.endsWith('.0')) str = str.slice(0, -2);
+              return str;
+            };
+
+            // Apply appropriate abbreviation
+            if (abs >= 1e21) return formatValue(value / 1e12) + "S";
+            if (abs >= 1e15) return formatValue(value / 1e12) + "Q";
+            if (abs >= 1e12) return formatValue(value / 1e12) + "T";
+            if (abs >= 1e9) return formatValue(value / 1e9) + "B";
+            if (abs >= 1e6) return formatValue(value / 1e6) + "M";
+            if (abs >= 1e3) return formatValue(value / 1e3) + "K";
+
+            // For values < 1000, show as-is but with max 2 decimal places
+            return formatDecimalSignificant(Number(value).toString());
+          }
+        }
+
       },
     },
   };
+
 
   if (loading && chartData.length === 0) {
     return (
@@ -224,10 +352,10 @@ export default function DetailChart({ coin }) {
   }
 
   return (
-    <div className="w-full mx-auto flex flex-col items-center justify-center gap-4 ">
+    <div className="w-full sm:w-[90%] lg:w-full mx-auto flex flex-col items-center justify-center gap-4 mt-4">
       {/* {loading && <p>Loading...</p>} */}
       {chartData.length > 0 && (
-        <div className="w-full flex flex-col justify-center" style={{ height: 400 }}>
+        <div className="w-full h-[230px] xs:h-[280px] flex flex-col justify-center">
           <Line
             options={chartJsOptions}
             data={chartJsData}
@@ -237,12 +365,12 @@ export default function DetailChart({ coin }) {
           />
         </div>
       )}
-
-      <div className={`flex h-4 w-full my-2 ${error ? 'text-red-500' : 'text-violet-300'}`}>  
+      <div className={`w-auto flex h-2 xs:h-4 text-center text-sm xs:text-base mt-1 mb-3 ${error ? 'text-red-500' : 'text-violet-300'}`}>
         {loading ? 'Loading Data, please wait...' :
           error ? error : ''}
       </div>
-      <div className="w-full flex justify-between">
+
+      <div className="w-full flex flex-col md:flex-row md:justify-between gap-3">
         <div className="flex gap-1.5 justify-center">
           {["Prices", "Market Caps", "Total Volumes"].map((type) => (
             <button
@@ -258,8 +386,7 @@ export default function DetailChart({ coin }) {
             </button>
           ))}
         </div>
-
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 justify-center">
           {optionsList.map((option) => (
             <button
               key={option.value}

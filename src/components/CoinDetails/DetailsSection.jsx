@@ -23,6 +23,70 @@ async function convertCryptoDataToCurrency(cryptoDataUSD, targetCurrency) {
     };
 }
 
+function formatNumberWithFixedDecimals(num, decimals = 2) {
+    // Handle NaN, Infinity cases
+    if (!isFinite(num)) return num.toString();
+
+    // Round to specified decimals
+    const factor = Math.pow(10, decimals);
+    const rounded = Math.round(num * factor) / factor;
+
+    // Convert to string and ensure exactly 2 decimal places
+    let str = rounded.toString();
+
+    // If in scientific notation, convert to decimal
+    if (str.includes('e')) {
+        str = rounded.toFixed(20).replace(/(\.\d*?)0+$/, '$1');
+        if (str.endsWith('.')) str = str.slice(0, -1);
+    }
+
+    // Split into integer and decimal parts
+    const parts = str.split('.');
+
+    // Add decimal part if missing
+    if (parts.length === 1) {
+        return parts[0] + '.' + '0'.repeat(decimals);
+    }
+
+    // Pad decimal part with zeros if needed
+    if (parts[1].length < decimals) {
+        return parts[0] + '.' + parts[1] + '0'.repeat(decimals - parts[1].length);
+    }
+
+    // Trim excess decimal digits
+    if (parts[1].length > decimals) {
+        return parts[0] + '.' + parts[1].substring(0, decimals);
+    }
+
+    return str;
+}
+
+function formatDecimalSignificant(num, sigFigs = 2) {
+    const absNum = Math.abs(num);
+
+    if (absNum >= 1) {
+        // For numbers ≥ 1, show 2 decimal places
+        return formatNumberWithFixedDecimals(num, 2);
+    } else {
+        // For numbers < 1, show 2 significant digits
+        if (num === 0) return "0.00";
+
+        const log10 = Math.floor(Math.log10(absNum));
+        const factor = Math.pow(10, 2 - log10 - 1);
+        const rounded = Math.round(num * factor) / factor;
+
+        // Convert to string and ensure proper formatting
+        let str = rounded.toString();
+
+        // Add leading zero if needed (e.g., ".0023" → "0.0023")
+        if (str.startsWith('.')) str = '0' + str;
+
+        // Ensure we show enough decimal places for the significant digits
+        const decimalPlaces = Math.max(0, 2 - Math.floor(Math.log10(Math.abs(rounded))) - 1);
+        return Number(str).toFixed(decimalPlaces);
+    }
+}
+
 const DetailsSection = () => {
 
     const [convertedData, setConvertedData] = useState(null);
@@ -68,23 +132,35 @@ const DetailsSection = () => {
         },
         {
             name: 'Current Price',
-            data: convertedData?.price
-                ? `${currencySymbol} ${Number(convertedData?.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : 'N/A',
+            data: convertedData?.price >= 1 ?
+                `${currencySymbol} ${((formatDecimalSignificant(Number(convertedData?.price))) / 1).toLocaleString('en-US')}` :
+                convertedData?.price < 1 ?
+                    `${currencySymbol} ${(formatDecimalSignificant(Number(convertedData?.price))).toLocaleString('en-US')}`
+                    : 'N/A',
         },
         {
             name: 'Market Cap',
-            data: convertedData?.market_cap ? `${currencySymbol} ${convertedData?.market_cap.toLocaleString()}` : 'N/A',
+            // data: convertedData?.market_cap ? `${currencySymbol} ${((formatDecimalSignificant(Number(convertedData?.market_cap))) / 1).toLocaleString()}` : 'N/A',
+            data:convertedData?.market_cap >= 1 ?
+                `${currencySymbol} ${((formatDecimalSignificant(Number(convertedData?.market_cap))) / 1).toLocaleString('en-US')}` :
+                convertedData?.market_cap < 1 ?
+                    `${currencySymbol} ${(formatDecimalSignificant(Number(convertedData?.market_cap))).toLocaleString('en-US')}`
+                    : 'N/A',
         },
         {
-            name: '24 Hour Change',
+            name: '24H Change',
             data: coinDetail?.quotes.USD.percent_change_24h ? `${coinDetail?.quotes.USD.percent_change_24h}%` : 'N/A',
         },
         {
-            name: '24 Hour Volume',
-            data: convertedData?.volume_24h
-                ? `${currencySymbol} ${Number(convertedData?.volume_24h).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : 'N/A',
+            name: '24H Volume',
+            // data: convertedData?.volume_24h
+            //     ? `${currencySymbol} ${((formatDecimalSignificant(Number(convertedData?.volume_24h))) / 1).toLocaleString()}`
+            //     : 'N/A',
+            data:  convertedData?.volume_24h >= 1 ?
+                `${currencySymbol} ${((formatDecimalSignificant(Number(convertedData?.volume_24h))) / 1).toLocaleString('en-US')}` :
+                convertedData?.volume_24h < 1 ?
+                    `${currencySymbol} ${(formatDecimalSignificant(Number(convertedData?.volume_24h))).toLocaleString('en-US')}`
+                    : 'N/A',
 
         },
     ]
@@ -101,11 +177,11 @@ const DetailsSection = () => {
     )
     return (
         <div
-            className='w-[70%] flex flex-col items-center justify-center h-full py-20 mx-auto'
+            className='w-full md:w-[90%] lg:w-[70%] max-w-[1000px] flex flex-col items-center justify-center h-full py-14 xs:py-16 sm:py-18 mx-auto'
             // 16px ki footer me padding ha
             style={{ minHeight: `calc(100vh - ${footerHeight + headerHeight + 16}px)` }}
         >
-            <div className='w-24'>
+            <div className='w-18 xs:w-20 sm:w-24'>
                 <img
                     src={`https://assets.coincap.io/assets/icons/${coinDetail?.symbol.toLowerCase()}@2x.png`}
                     alt={coinDetail?.name}
@@ -115,24 +191,24 @@ const DetailsSection = () => {
                 />
             </div>
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
-                {coinDetail?.name} ({coinDetail?.symbol})
+                {coinDetail?.name ? `${coinDetail?.name} (${coinDetail?.symbol})` : 'Coin not found'}
             </h1>
             <div
-                className='w-full h-auto'
+                className='w-full'
             >
                 <DetailChart
                     coin={coinDetail}
                 />
             </div>
             <div className='w-full border-1 border-gray-600 my-5'></div>
-            <div className='min-w-xl w-full'>
+            <div className='w-full'>
                 {coinData.map((value, index) => (
                     <div
                         key={index}
                         className='flex justify-between text-white'
                     >
-                        <span className='text-white'>{value.name}</span>
-                        <span className='text-violet-300'>{value.data}</span>
+                        <span className='text-violet-300'>{value.name}</span>
+                        <span className='text-white'>{value.data}</span>
                     </div>
                 ))}
             </div>
