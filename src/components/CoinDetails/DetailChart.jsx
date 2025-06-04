@@ -40,6 +40,9 @@ const optionsList = [
 
 function formatCryptoNumber(value) {
   const abs = Math.abs(value);
+  if (abs >= 1e21) return +(value / 1e21).toFixed(2) + 'S';
+  if (abs >= 1e15) return +(value / 1e15).toFixed(2) + 'Q';
+  if (abs >= 1e12) return +(value / 1e12).toFixed(2) + 'T';
   if (abs >= 1e9) return +(value / 1e9).toFixed(2) + 'B';
   if (abs >= 1e6) return +(value / 1e6).toFixed(2) + 'M';
   if (abs >= 1e3) return +(value / 1e3).toFixed(2) + 'K';

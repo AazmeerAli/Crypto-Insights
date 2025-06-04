@@ -164,10 +164,10 @@ const DetailsSection = () => {
             <div className='w-18 xs:w-20 sm:w-24'>
                 <img
                     src={`https://assets.coincap.io/assets/icons/${coinDetail?.symbol.toLowerCase()}@2x.png`}
-                    alt={coinDetail?.name}
+                    alt={`Image not found`}
                     width={20}
                     height={20}
-                    className="text-[0px] w-full"
+                    className="w-full text-white"
                 />
             </div>
             <h1 className='text-white font-bold text-xl base:text-2xl sm:text-3xl md:text-4xl text-center mt-4'>
