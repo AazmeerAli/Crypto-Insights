@@ -79,7 +79,7 @@ function formatNumberWithFixedDecimals(num, decimals = 2) {
 function formatDecimalSignificant(num, sigFigs = 2) {
   const absNum = Math.abs(num);
 
-  if (absNum >= 1) {
+  if (absNum >= 10) {
     // For numbers ≥ 1, show 2 decimal places
     return formatNumberWithFixedDecimals(num, 2);
   } else {
@@ -101,6 +101,19 @@ function formatDecimalSignificant(num, sigFigs = 2) {
     return Number(str).toFixed(decimalPlaces);
   }
 }
+
+function formatCryptoNumber(value) {
+  const abs = Math.abs(value);
+  if (abs >= 1e9) return +(value / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return +(value / 1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return +(value / 1e3).toFixed(2) + 'K';
+  if (abs >= 10) return +value.toFixed(2);
+  if (abs >= 0.01) return +value.toFixed(4);
+  if (abs >= 0.0001) return +value.toFixed(6);
+  if (abs > 0) return +value.toFixed(8);
+  return '0';
+}
+
 
 export default function DetailChart({ coin }) {
   const [days, setDays] = useState("30");
@@ -257,22 +270,86 @@ export default function DetailChart({ coin }) {
             }
             return tooltipItems[0].label;
           },
+          // label: function (tooltipItem) {
+          //   // Custom label: show label, value with 2 decimals, and currency
+          //   const dataset = tooltipItem.dataset;
+          //   const value = tooltipItem.parsed.y;
+          //   let formatted = '';
+          //   if (dataset && dataset.label) {
+          //     formatted += dataset.label + ': ';
+          //   }
+          //   formatted += value >=1? Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : formatDecimalSignificant(value);
+          //   if (currency?.label) {
+          //     // Show only currency code (e.g. USD)
+          //     const code = currency.label.split(' ').pop();
+          //     formatted += ' ' + code;
+          //   }
+          //   return formatted;
+          // },
+          // label: function (tooltipItem) {
+          //   const dataset = tooltipItem.dataset;
+          //   const value = tooltipItem.parsed.y;
+          //   let formatted = '';
+          //   if (dataset && dataset.label) {
+          //     formatted += dataset.label + ': ';
+          //   }
+          //   // formatted += formatDecimalSignificant(value);
+          //   if (Math.abs(value) >= 0.01) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+          //   }
+          //   else if (Math.abs(value) >= 0.001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+          //   }
+          //   else if (Math.abs(value) >= 0.0001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 5, maximumFractionDigits: 5 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 6 });
+          //   }
+          //   else if (Math.abs(value) >= 0.000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 7, maximumFractionDigits: 7 });
+          //   }
+          //   else if (Math.abs(value) >= 0.0000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 8, maximumFractionDigits: 8 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 9, maximumFractionDigits: 9 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 10, maximumFractionDigits: 10 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 11, maximumFractionDigits: 11 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 12, maximumFractionDigits: 12 });
+          //   }
+          //   else if (Math.abs(value) >= 0.00000001) {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 13, maximumFractionDigits: 13 });
+          //   }
+          //   else {
+          //     formatted += Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          //   }
+          //   if (currency?.label) {
+          //     const code = currency.label.split(' ').pop();
+          //     formatted += ' ' + code;
+          //   }
+          //   return formatted;
+          // }
           label: function (tooltipItem) {
-            // Custom label: show label, value with 2 decimals, and currency
-            const dataset = tooltipItem.dataset;
-            const value = tooltipItem.parsed.y;
-            let formatted = '';
-            if (dataset && dataset.label) {
-              formatted += dataset.label + ': ';
-            }
-            formatted += value >=1? Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : formatDecimalSignificant(value);
-            if (currency?.label) {
-              // Show only currency code (e.g. USD)
-              const code = currency.label.split(' ').pop();
-              formatted += ' ' + code;
-            }
-            return formatted;
-          },
+  const dataset = tooltipItem.dataset;
+  const value = tooltipItem.parsed.y;
+  let formatted = '';
+  if (dataset && dataset.label) {
+    formatted += dataset.label + ': ';
+  }
+  formatted += formatCryptoNumber(value);
+  if (currency?.label) {
+    const code = currency.label.split(' ').pop();
+    formatted += ' ' + code;
+  }
+  return formatted;
+}
         },
       },
     },
@@ -308,34 +385,41 @@ export default function DetailChart({ coin }) {
           drawBorder: true,
         },
         ticks: {
+          // callback: function (value) {
+          //   const abs = Math.abs(value);
+
+          //   // First format the number to 2 significant digits
+          //   const formatValue = (val) => {
+          //     if (val === 0) return '0';
+          //     const absVal = Math.abs(val);
+          //     const log10 = Math.floor(Math.log10(absVal));
+          //     const factor = Math.pow(10, 2 - log10 - 1);
+          //     const rounded = Math.round(val * factor) / factor;
+
+          //     // Convert to string and remove trailing .0 if no decimal places
+          //     let str = rounded.toString();
+          //     if (str.endsWith('.0')) str = str.slice(0, -2);
+          //     return str;
+          //   };
+
+          //   // Apply appropriate abbreviation
+          //   if (abs >= 1e21) return formatValue(value / 1e21) + "S";
+          //   if (abs >= 1e15) return formatValue(value / 1e15) + "Q";
+          //   if (abs >= 1e12) return formatValue(value / 1e12) + "T";
+          //   if (abs >= 1e9) return formatValue(value / 1e9) + "B";
+          //   if (abs >= 1e6) return formatValue(value / 1e6) + "M";
+          //   if (abs >= 1e3) return formatValue(value / 1e3) + "K";
+
+          //   // For values < 1000, show as-is but with max 2 decimal places
+          //   if (Number(value) >= 1) {
+          //     return Number(value).toString() 
+          //   } else {
+          //     return formatDecimalSignificant(Number(value).toString());
+          //   }
+          // }
           callback: function (value) {
-            const abs = Math.abs(value);
-
-            // First format the number to 2 significant digits
-            const formatValue = (val) => {
-              if (val === 0) return '0';
-              const absVal = Math.abs(val);
-              const log10 = Math.floor(Math.log10(absVal));
-              const factor = Math.pow(10, 2 - log10 - 1);
-              const rounded = Math.round(val * factor) / factor;
-
-              // Convert to string and remove trailing .0 if no decimal places
-              let str = rounded.toString();
-              if (str.endsWith('.0')) str = str.slice(0, -2);
-              return str;
-            };
-
-            // Apply appropriate abbreviation
-            if (abs >= 1e21) return formatValue(value / 1e12) + "S";
-            if (abs >= 1e15) return formatValue(value / 1e12) + "Q";
-            if (abs >= 1e12) return formatValue(value / 1e12) + "T";
-            if (abs >= 1e9) return formatValue(value / 1e9) + "B";
-            if (abs >= 1e6) return formatValue(value / 1e6) + "M";
-            if (abs >= 1e3) return formatValue(value / 1e3) + "K";
-
-            // For values < 1000, show as-is but with max 2 decimal places
-            return formatDecimalSignificant(Number(value).toString());
-          }
+  return formatCryptoNumber(value);
+}
         }
 
       },

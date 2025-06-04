@@ -44,7 +44,7 @@ const Navbar = () => {
       >
         <FaBitcoin className='text-3xl ' />
         <span className='hidden md:inline'>
-          AA Crypto
+         Crypto Insights
         </span>
       </div>
       {/* <div>
