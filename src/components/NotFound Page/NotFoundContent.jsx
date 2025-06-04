@@ -16,10 +16,8 @@ const NotFoundContent = () => {
             <div className="flex flex-col items-center justify-center text-center animate-fade-in">
                 <div className="mb-4">
                   <MdErrorOutline className="text-violet-400 text-8xl xs:text-9xl" />
-                  {/* <div className="absolute left-1/2 top-[90px] -translate-x-1/2 text-[48px] font-extrabold text-violet-700 select-none pointer-events-none" style={{letterSpacing:2}}>404</div> */}
                 </div>
                 <div className="flex items-center gap-2 mb-2">
-                  {/* <FaExclamationCircle className="h-8 w-8 text-violet-400" /> */}
                   <div className="text-3xl md:text-4xl font-bold text-white mt-2">Oops<span className='text-violet-400'>!</span> Page Not Found</div>
                 </div>
                 <div className="text-base md:text-lg text-gray-300 mb-8 max-w-[500px] flex flex-col items-center gap-2">

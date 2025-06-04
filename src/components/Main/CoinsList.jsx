@@ -25,14 +25,12 @@ function formatSmartNumber(input) {
     { value: 1e3, symbol: "K" }
   ];
 
-  // Large number formatting
   for (let i = 0; i < units.length; i++) {
     if (num >= units[i].value) {
       return (num / units[i].value).toFixed(1).replace(/\.0$/, "") + units[i].symbol;
     }
   }
 
-  // Small number formatting (less than 0.01)
   if (num < 0.01) {
     const str = num.toString();
     const afterDecimal = str.split(".")[1] || "";
@@ -42,7 +40,6 @@ function formatSmartNumber(input) {
     return "0." + "0".repeat(i) + sig;
   }
 
-  // Default for numbers between 0.01 and 999
   return num.toFixed(2).replace(/\.00$/, "");
 }
 
@@ -50,8 +47,7 @@ function formatSmartNumber(input) {
 async function getExchangeRate(targetCurrency) {
   const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
   const data = await response.json();
-  // console.log(Object.keys(data.rates).length)
-  return data.rates[targetCurrency];  // Example: 'PKR' or 'EUR' or 'JPY'
+  return data.rates[targetCurrency];  
 }
 
 
@@ -75,7 +71,6 @@ const CoinsList = () => {
   const { paginatedCoins, totalPages, totalCoins, setTotalCoins, currentPage, setCurrentPage, allCoins, setAllCoins, allCurrencies, currency, setCurrency, loading, setLoading, error, setError } = useContext(CoinContext);
   const currencySymbol = currency.label.split(' - ')[1] || '$';
   const paginationButtonStyles = 'w-9 h-9 flex justify-center items-center border-1 border-gray-400 rounded-full cusror-pointer transition-colors duration-200 hover:bg-gray-500 hover:text-white ';
-  // const totalPages = Math.ceil(totalCoins / 10);
 
   useEffect(() => {
     Promise.all(paginatedCoins.map(value =>
@@ -88,7 +83,7 @@ const CoinsList = () => {
       <div className="min-w-full inline-block align-middle rounded-md ">
         <table
           className={`table-auto w-full  text-white border-collapse-separate bg-indigo-900 rounded-md py-2`}
-          style={{ borderSpacing: '0 10px' }} // vertical spacing 10px, horizontal 0
+          style={{ borderSpacing: '0 10px' }}
         >
           <thead className="border-b-1 border-gray-500">
             <tr className="text-left">

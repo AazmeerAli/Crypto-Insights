@@ -10,7 +10,6 @@ export const usePaginationNumbers = () => {
   let start = Math.max(1, currentPage - 2);
   let end = Math.min(totalPages, currentPage + 2);
 
-  // Adjust to always show 5 pages if possible
   if (currentPage <= 2) {
     end = Math.min(5, totalPages);
   } else if (currentPage >= totalPages - 1) {

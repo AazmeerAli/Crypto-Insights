@@ -21,20 +21,14 @@ const CurrencyDropdown = () => {
     console.log(selected)
   };
 
-  // const selectedOption = options.find(
-  //   (opt) => opt.value === (typeof currency === "string" ? currency.toLowerCase() : "")
-  // );
-
   const selectedOption = currency
 
-  // Decode HTML entity to actual symbol
   const decodeHtmlEntity = (str) => {
     const txt = document.createElement("textarea");
     txt.innerHTML = str;
     return txt.value;
   };
 
-  // Custom dropdown icon on right
   const DropdownIndicator = (props) => {
     return (
       components.DropdownIndicator && (
@@ -65,7 +59,6 @@ const CurrencyDropdown = () => {
           }),
           control: (base) => ({
             ...base,
-            // backgroundColor: "#1a1a1a",
             backgroundColor: "transparent",
             border: "1px solid #9ca3af",
             color: "white",
@@ -78,7 +71,6 @@ const CurrencyDropdown = () => {
             },
             '&:focus-visible':{
               outline:'none !important',
-              // border:'none !important',
             }
           }),
           singleValue: (base) => ({
@@ -91,7 +83,7 @@ const CurrencyDropdown = () => {
           }),
           dropdownIndicator: (base, state) => ({
             ...base,
-            color: state.isFocused ? "lightgray" : "white", // Icon color
+            color: state.isFocused ? "lightgray" : "white", 
             fontSize: '0.9rem',
             "&:hover": {
               color: "white",

@@ -10,27 +10,11 @@ const Navbar = () => {
   const { currency, setCurrency, allCurrencies, setAllCurrencies,headerHeight,setHeaderHeight } = useContext(CoinContext)
   const headerRef = useRef();
   const navigate = useNavigate();
-  // console.log(allCurrencies)
 
   useEffect(() => {
     const height = headerRef.current.offsetHeight;
     setHeaderHeight(height);
   }, []);
-
-
-  // const fetchCurrencies = () => {
-  //   axios.get('https://api.coingecko.com/api/v3/simple/supported_vs_currencies', {
-  //     // headers: {
-  //     //   mode: 'no-cors',
-  //     // }
-  //   })
-  //     .then(res => setAllCurrencies(res.data))
-  //     .catch(err => console.error(err));
-  // }
-
-  // useEffect(() => {
-  //   fetchCurrencies();
-  // }, []);
 
   return (
     <header
@@ -40,21 +24,12 @@ const Navbar = () => {
       <div
         className='text-white font-semibold text-2xl flex items-center gap-2 cursor-pointer'
         onClick={() => navigate('/')}
-        // title='Go to Home'
       >
         <FaBitcoin className='text-3xl ' />
         <span className='hidden md:inline'>
          Crypto Insights
         </span>
       </div>
-      {/* <div>
-        <input type='text' list="currencies" name="currencies" id="currencies" />
-        <datalist id="currencies">
-          {allCurrencies.map((currency, index) => (
-            <option value={currency.abbreviation.toLowerCase()}>{currency.abbreviation}</option>
-          ))}
-        </datalist>
-      </div> */}
       <CurrencyDropdown />
     </header>
   )
