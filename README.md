@@ -1,24 +1,33 @@
 # 📊 Crypto Insights – Real-Time Crypto Tracking App
 
-**Crypto Insights** is a sleek and responsive cryptocurrency tracking app that provides real-time price updates, market capitalization, trading volume, historical charts, and multi-currency support. Perfect for users, traders, and businesses to stay informed with the latest crypto trends.
+**Crypto Insights** is a modern and responsive cryptocurrency tracking app that provides real-time crypto data, charts, and multi-currency support using **CoinGecko** and **CoinPaprika** APIs. Built with **React** and **Tailwind CSS**, this project showcases advanced UI design and live market data integration.
 
 ---
 
 ## 🔗 Live Demo
 
-🌐 [Visit Live App](https://your-netlify-link.netlify.app)
+🌐 [Visit Live App](https://crypto-tracker-insights.netlify.app/)
 
 ---
 
 ## ⚙️ Features
 
-- ✅ Real-time crypto prices (via CoinGecko API)
-- 💱 Support for multiple fiat currencies (USD, INR, EUR, etc.)
-- 📈 Historical price charts (24h, 7d, 30d, 1y)
-- 📊 Market cap, volume, supply, and 24h changes
-- 🔎 Instant coin search and filtering
-- 🌗 Light / Dark mode
-- 📱 Mobile-friendly responsive design
+- ✅ Live cryptocurrency prices and stats
+- 🌍 Multi-currency support (USD, INR, EUR, etc.)
+- 📊 Market cap, volume, circulating supply, and 24h change
+- 📈 Historical charts (24h, 7d, 30d, 1y) via Chart.js
+- 🔍 Real-time search and filtering
+- 🌙 Light and dark mode
+- 📱 Fully responsive (mobile-first)
+
+---
+
+## 🔌 APIs Used
+
+- [CoinGecko API](https://www.coingecko.com/en/api) – for historical data & charts
+- [CoinPaprika API](https://api.coinpaprika.com/) – for detailed coins data
+
+> ⚡ Combined use of both APIs ensures deeper data coverage and accuracy.
 
 ---
 
@@ -26,31 +35,19 @@
 
 | Tool | Description |
 |------|-------------|
-| **React** | Frontend UI framework |
-| **Chakra UI** | Component-based styling |
-| **Chart.js + react-chartjs-2** | Graphs and charts |
-| **CoinGecko API** | Live crypto data |
-| **React Router** | Routing |
-| **React Helmet Async** | SEO metadata |
-| **Netlify** | Hosting and deployment |
-
----
-
-## 🖼️ Screenshots
-
-> *(Upload your screenshots and replace the URLs below)*
-
-<img src="./screenshots/home.png" width="700" />
-<img src="./screenshots/details.png" width="700" />
+| **React** | Frontend framework |
+| **Tailwind CSS** | Styling and layout |
+| **Chart.js + react-chartjs-2** | Graph rendering |
+| **React Router** | Page navigation |
+| **React Helmet Async** | SEO meta handling |
+| **Netlify** | Deployment & hosting |
 
 ---
 
 ## 🚀 Getting Started
 
-Clone the repository and run locally:
-
 ```bash
-git clone https://github.com/your-username/crypto-insights.git
+git clone https://github.com/AazmeerAli/Crypto-Insights.git
 cd crypto-insights
 npm install
-npm run dev  # or npm start
+npm run dev
