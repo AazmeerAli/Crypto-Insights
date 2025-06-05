@@ -59,7 +59,7 @@ npm run dev
 
 **Aazmeer Ali**  
 Frontend Web Developer  
-📧 aazmeer@example.com  
-🌐 [Portfolio](https://aazmeer.dev)  
-🐱 [GitHub](https://github.com/aazmeerali)
+📧 aazmeerali90@gmail.com  
+🌐 [Portfolio](https://aazmeerali.netlify.app)  
+🐱 [GitHub](https://github.com/AazmeerAli)
 
