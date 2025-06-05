@@ -51,6 +51,7 @@ git clone https://github.com/AazmeerAli/Crypto-Insights.git
 cd crypto-insights
 npm install
 npm run dev
+```
 
 ---
 
