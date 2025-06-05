@@ -51,3 +51,14 @@ git clone https://github.com/AazmeerAli/Crypto-Insights.git
 cd crypto-insights
 npm install
 npm run dev
+
+---
+
+## 👨‍💻 Author
+
+**Aazmeer Ali**  
+Frontend Web Developer  
+📧 aazmeer@example.com  
+🌐 [Portfolio](https://aazmeer.dev)  
+🐱 [GitHub](https://github.com/aazmeerali)
+
